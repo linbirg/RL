@@ -16,7 +16,7 @@ class MazeEnv(object):
     迷宫的模拟环境
     """
     action_dim = 4
-    state_space_dim = 2
+    state_space_dim = 5
 
     def __init__(self, log_name='MazeEnv', maze=None):
         if maze is None:
@@ -72,4 +72,7 @@ class MazeEnv(object):
         self.viewer.render()
 
     def get_state(self):
-        return np.hstack([self.maze.snakes[0].x, self.maze.snakes[0].y])
+        return np.hstack([
+            self.maze.target[0], self.maze.target[1], self.maze.snakes[0].x,
+            self.maze.snakes[0].y, self.maze.snakes[0].length()
+        ])

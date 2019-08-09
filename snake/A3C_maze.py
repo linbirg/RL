@@ -75,14 +75,12 @@ class Worker(object):
         def reset():
             nonlocal ep_r, total_step
             self.env.reset()
-            ep_r = 0
-            total_step = 1
-
-        while not COORD.should_stop() and self.GLOBAL_EP < MAX_GLOBAL_EP:
-            # s = self.env.reset()
             # ep_r = 0
             # total_step = 1
+
+        while not COORD.should_stop() and self.GLOBAL_EP < MAX_GLOBAL_EP:
             reset()
+            total_step = 1
             while total_step < MAX_TOTAL_STEP:
                 try:
                     s = self.env.get_state()
@@ -136,11 +134,12 @@ class Worker(object):
         def reset():
             nonlocal ep_r, total_step
             self.env.reset()
-            ep_r = 0
-            total_step = 1
+            # ep_r = 0
+            # total_step = 1
 
         while not COORD.should_stop():
             reset()
+            total_step = 1
             while total_step < MAX_TOTAL_STEP:
                 try:
                     s = self.env.get_state()
