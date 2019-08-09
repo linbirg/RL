@@ -1,11 +1,17 @@
 # import random
 import pyglet
 
+# from .maze import Maze
 from env.maze import Maze
 
-DimGrey = (69, 69, 69)
-LightSlateGray = (119, 136, 153)
-Crimson = (220, 20, 60)  # DC143C
+DimGrey = (69, 69, 69)  # 灰
+LightSlateGray = (119, 136, 153)  # 	浅石板灰
+Crimson = (220, 20, 60)  # DC143C 	猩红
+RoyalBlue = (65, 105, 225)  # 皇家蓝
+GhostWhite = (248, 248, 255)  # 幽灵白
+Lavender = (230, 230, 250)  # 熏衣草花的淡紫色
+AliceBlue = (240, 248, 255)  # 爱丽丝蓝
+LightCoral = (240, 128, 128)  # 淡珊瑚色
 
 
 class MazeViewer(pyglet.window.Window):
@@ -15,12 +21,11 @@ class MazeViewer(pyglet.window.Window):
     # pyglet.clock.ClockDisplay()
 
     def __init__(self, maze):
-        super(MazeViewer, self).__init__(
-            width=1000,
-            height=800,
-            resizable=False,
-            caption='maze',
-            vsync=False)
+        super(MazeViewer, self).__init__(width=1000,
+                                         height=800,
+                                         resizable=False,
+                                         caption='maze',
+                                         vsync=False)
 
         self.maze = maze
 
@@ -28,9 +33,12 @@ class MazeViewer(pyglet.window.Window):
         self.batch = pyglet.graphics.Batch()
 
         self.grids = self.plot_area()
-        self.door = self.plot_door()
-        self.blocks = self.plot_blocks()
-        self.cur = self.plot_cur()
+        self.target = self.plot_target()
+        self.bodys = self.plot_snakes()
+
+    def set_maze(self, maze):
+        self.maze = maze
+        self.update()
 
     def render(self):
         # pyglet.clock.tick()
@@ -47,21 +55,19 @@ class MazeViewer(pyglet.window.Window):
     def update(self):
         self._clear()
 
-        self.plot_area()
-        self.door = self.plot_door()
-        self.blocks = self.plot_blocks()
-        self.cur = self.plot_cur()
+        self.grids = self.plot_area()
+        self.target = self.plot_target()
+        self.bodys = self.plot_snakes()
 
     def _clear(self):
-        self.cur.delete()
-        self.door.delete()
-        for block in self.blocks:
+        self.target.delete()
+        for block in self.bodys:
             block.delete()
 
         for line in self.grids:
             line.delete()
 
-    def _add_rect(self, pos, width, height, color=(80, 60, 255)):
+    def _add_rect(self, pos, width, height, color=Lavender):
         # 添加蓝点
         rect = self.batch.add(
             4,
@@ -83,11 +89,11 @@ class MazeViewer(pyglet.window.Window):
 
         return rect
 
-    def _add_v_line(self, pos, length, width=1, color=DimGrey):
+    def _add_v_line(self, pos, length, width=1, color=AliceBlue):
         vline = self._add_rect(pos, width, length, color=color)
         return vline
 
-    def _add_h_line(self, pos, length, width=1, color=DimGrey):
+    def _add_h_line(self, pos, length, width=1, color=AliceBlue):
         hline = self._add_rect(pos, length, width, color=color)
         return hline
 
@@ -106,47 +112,51 @@ class MazeViewer(pyglet.window.Window):
 
         return lines
 
-    def plot_door(self):
+    def plot_target(self):
         x, y = self._get_origin()
         b_w, b_h = self._calc_block_size()
-        door = self._add_rect(
-            (x + self.maze.door[0] * b_w, y + self.maze.door[1] * b_h), b_w,
-            b_h)
-
-        return door
-
-    def plot_cur(self):
-        x, y = self._get_origin()
-        b_w, b_h = self._calc_block_size()
-        cur = self._add_rect(
-            (x + self.maze.x * b_w, y + self.maze.y * b_h),
+        target = self._add_rect(
+            (x + self.maze.target[0] * b_w, y + self.maze.target[1] * b_h),
             b_w,
             b_h,
-            color=Crimson)
+            color=LightCoral)
 
-        return cur
+        return target
 
-    def plot_blocks(self):
-        if self.maze.blocks is None:
+    def plot_snakes(self):
+        if self.maze.snakes is None:
             return None
+
+        bodys = []
+        heads = []
+        for snake in self.maze.snakes:
+            bodys = bodys + snake.body[0:-1]
+            heads.append(snake.body[-1])
 
         x, y = self._get_origin()
         b_w, b_h = self._calc_block_size()
         blocks = []
-        for block in self.maze.blocks:
+        for block in bodys:
             blck_rect = self._add_rect(
                 (x + block[0] * b_w, y + block[1] * b_h),
                 b_w,
                 b_h,
-                color=LightSlateGray)
+                color=RoyalBlue)
+            blocks.append(blck_rect)
+
+        for head in heads:
+            blck_rect = self._add_rect((x + head[0] * b_w, y + head[1] * b_h),
+                                       b_w,
+                                       b_h,
+                                       color=Crimson)
             blocks.append(blck_rect)
 
         return blocks
 
     def _get_origin(self):
         w, h = self.get_size()
-        return w * (1 - self._get_occupy()) / 2, h * (
-            1 - self._get_occupy()) / 2
+        return w * (1 - self._get_occupy()) / 2, h * (1 -
+                                                      self._get_occupy()) / 2
 
     def _get_occupy(self):
         return self.OCCUPY / 100
@@ -163,16 +173,20 @@ class MazeViewer(pyglet.window.Window):
 
 
 def viewer_run():
-    viewer = MazeViewer(
-        Maze(blocks=[(1, 1), (1, 2), (1, 3), (2, 1), (3, 1), (4, 2)]))
+    viewer = MazeViewer(Maze())
     while True:
         viewer.render()
 
 
 if __name__ == '__main__':
-    import threading
     import time
-    t = threading.Thread(target=viewer_run)
-    t.start()
+    import random
+    import logging
+    maze = Maze.build((10, 10))
+    viewer = MazeViewer(maze)
     while True:
-        time.sleep(0.5)
+        dx, dy = random.randint(-1, 1), random.randint(-1, 1)
+        print(dx, dy)
+        maze.move(dx, dy)
+        viewer.render()
+        time.sleep(0.1)

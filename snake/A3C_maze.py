@@ -88,8 +88,10 @@ class Worker(object):
                     s = self.env.get_state()
                     a, p = self.AC.choose_action(s)
                     s_, r, done = self.env.step(a)
-                    # if done:
-                    #     r = 5000
+                    # if self.name == 'W_0':
+                    #     logger.debug([
+                    #         "s ", s_, " r ", r, " done ", done, " ep_r ", ep_r
+                    #     ])
 
                     ep_r += r
                     buffer_s.append(s)
@@ -144,8 +146,10 @@ class Worker(object):
                     s = self.env.get_state()
                     a, p = self.AC.choose_action(s)
                     s_, r, done = self.env.step(a)
-                    # st_ac = self.AC.print_AC()
-                    # logger.debug(st_ac)
+                    # if self.name == 'W_0':
+                    #     logger.debug([
+                    #         "s ", s_, " r ", r, " done ", done, " ep_r ", ep_r
+                    #     ])
 
                     ep_r += r
                     buffer_s.append(s)
@@ -193,7 +197,7 @@ if __name__ == "__main__":
     with tf.device("/cpu:0"):
         # OPT_A = tf.train.RMSPropOptimizer(LR_A, name='RMSPropA')
         # OPT_C = tf.train.RMSPropOptimizer(LR_C, name='RMSPropC')
-        global_maze = Maze.build(bounds=(30, 30), block_cnt=200)
+        global_maze = Maze.build(bounds=(80, 80))
         # sess, name, N_S, N_A, globalAC, maze=None
         GLOBAL_AC = A3CNet(SESS, GLOBAL_NET_SCOPE, N_S,
                            N_A)  # we only need its params

@@ -42,8 +42,8 @@ class A3CNet(object):
 
                 with tf.name_scope('a_loss'):
                     log_prob = tf.reduce_sum(
-                        tf.log(self.a_prob) * tf.one_hot(
-                            self.a_his, N_A, dtype=tf.float32),
+                        tf.log(self.a_prob) *
+                        tf.one_hot(self.a_his, N_A, dtype=tf.float32),
                         axis=1,
                         keep_dims=True)
                     exp_v = log_prob * td
@@ -77,82 +77,81 @@ class A3CNet(object):
     def _build_net(self, scope):
         w_init = tf.random_normal_initializer(0., .1)
         with tf.variable_scope('actor'):
-            l_a = tf.layers.dense(
-                self.s, 800, tf.nn.relu6, kernel_initializer=w_init, name='la')
+            l_a = tf.layers.dense(self.s,
+                                  800,
+                                  tf.nn.relu6,
+                                  kernel_initializer=w_init,
+                                  name='la')
             l_a_dp = tf.layers.dropout(l_a, rate=0.4)
-            l_a2 = tf.layers.dense(
-                l_a_dp,
-                400,
-                tf.nn.relu6,
-                kernel_initializer=w_init,
-                name='la2')
+            l_a2 = tf.layers.dense(l_a_dp,
+                                   400,
+                                   tf.nn.relu6,
+                                   kernel_initializer=w_init,
+                                   name='la2')
             l_a2_dp = tf.layers.dropout(l_a2)
-            l_a3 = tf.layers.dense(
-                l_a2_dp,
-                200,
-                tf.nn.relu6,
-                kernel_initializer=w_init,
-                name='la3')
+            l_a3 = tf.layers.dense(l_a2_dp,
+                                   200,
+                                   tf.nn.relu6,
+                                   kernel_initializer=w_init,
+                                   name='la3')
             l_a3_dp = tf.layers.dropout(l_a3)
-            l_a4 = tf.layers.dense(
-                l_a3_dp,
-                100,
-                tf.nn.relu6,
-                kernel_initializer=w_init,
-                name='la4')
+            l_a4 = tf.layers.dense(l_a3_dp,
+                                   100,
+                                   tf.nn.relu6,
+                                   kernel_initializer=w_init,
+                                   name='la4')
             l_a4_dp = tf.layers.dropout(l_a4)
-            l_a5 = tf.layers.dense(
-                l_a4_dp,
-                50,
-                tf.nn.relu6,
-                kernel_initializer=w_init,
-                name='la5')
+            l_a5 = tf.layers.dense(l_a4_dp,
+                                   50,
+                                   tf.nn.relu6,
+                                   kernel_initializer=w_init,
+                                   name='la5')
             l_a5_dp = tf.layers.dropout(l_a5, rate=0.2)
-            a_prob = tf.layers.dense(
-                l_a5_dp,
-                self.N_A,
-                tf.nn.softmax,
-                kernel_initializer=w_init,
-                name='ap')
+            a_prob = tf.layers.dense(l_a5_dp,
+                                     self.N_A,
+                                     tf.nn.softmax,
+                                     kernel_initializer=w_init,
+                                     name='ap')
         with tf.variable_scope('critic'):
-            l_c = tf.layers.dense(
-                self.s, 800, tf.nn.relu6, kernel_initializer=w_init, name='lc')
+            l_c = tf.layers.dense(self.s,
+                                  800,
+                                  tf.nn.relu6,
+                                  kernel_initializer=w_init,
+                                  name='lc')
             l_c_dp = tf.layers.dropout(l_c, rate=0.5)
             # 多加一层
-            l_c2 = tf.layers.dense(
-                l_c_dp,
-                400,
-                tf.nn.relu6,
-                kernel_initializer=w_init,
-                name='lc2')
+            l_c2 = tf.layers.dense(l_c_dp,
+                                   400,
+                                   tf.nn.relu6,
+                                   kernel_initializer=w_init,
+                                   name='lc2')
             l_c2_dp = tf.layers.dropout(l_c2)
-            l_c3 = tf.layers.dense(
-                l_c2_dp,
-                200,
-                tf.nn.relu6,
-                kernel_initializer=w_init,
-                name='lc3')
+            l_c3 = tf.layers.dense(l_c2_dp,
+                                   200,
+                                   tf.nn.relu6,
+                                   kernel_initializer=w_init,
+                                   name='lc3')
             l_c3_dp = tf.layers.dropout(l_c3)
-            l_c4 = tf.layers.dense(
-                l_c3_dp,
-                100,
-                tf.nn.relu6,
-                kernel_initializer=w_init,
-                name='lc4')
+            l_c4 = tf.layers.dense(l_c3_dp,
+                                   100,
+                                   tf.nn.relu6,
+                                   kernel_initializer=w_init,
+                                   name='lc4')
             l_c4_dp = tf.layers.dropout(l_c4)
-            l_c5 = tf.layers.dense(
-                l_c4_dp,
-                50,
-                tf.nn.relu6,
-                kernel_initializer=w_init,
-                name='lc5')
+            l_c5 = tf.layers.dense(l_c4_dp,
+                                   50,
+                                   tf.nn.relu6,
+                                   kernel_initializer=w_init,
+                                   name='lc5')
             l_c5_dp = tf.layers.dropout(l_c5, rate=0.2)
-            v = tf.layers.dense(
-                l_c5_dp, 1, kernel_initializer=w_init, name='v')  # state value
-        a_params = tf.get_collection(
-            tf.GraphKeys.TRAINABLE_VARIABLES, scope=scope + '/actor')
-        c_params = tf.get_collection(
-            tf.GraphKeys.TRAINABLE_VARIABLES, scope=scope + '/critic')
+            v = tf.layers.dense(l_c5_dp,
+                                1,
+                                kernel_initializer=w_init,
+                                name='v')  # state value
+        a_params = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES,
+                                     scope=scope + '/actor')
+        c_params = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES,
+                                     scope=scope + '/critic')
         return a_prob, v, a_params, c_params
 
     def update_global(self, feed_dict):  # run by a local
@@ -160,10 +159,11 @@ class A3CNet(object):
                       feed_dict)  # local grads applies to global net
 
     def update(self, done, s_, buffer_r, buffer_s, buffer_a):
-        if done:
-            v_s_ = 20000  # terminal,应该价值更高？
-        else:
-            v_s_ = self.get_v(s_)
+        # if done:
+        #     v_s_ = -0
+        # else:
+        #     v_s_ = self.get_v(s_)
+        v_s_ = self.get_v(s_)
 
         buffer_v_target = []
         for r in buffer_r[::-1]:  # reverse buffer r
@@ -189,10 +189,8 @@ class A3CNet(object):
         self.SESS.run([self.pull_a_params_op, self.pull_c_params_op])
 
     def choose_action(self, s):  # run by a local
-        prob_weights = self.SESS.run(
-            self.a_prob, feed_dict={
-                self.s: s[np.newaxis, :]
-            })
+        prob_weights = self.SESS.run(self.a_prob,
+                                     feed_dict={self.s: s[np.newaxis, :]})
         action = np.random.choice(
             range(prob_weights.shape[1]),
             p=prob_weights.ravel())  # select action w.r.t the actions prob

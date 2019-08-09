@@ -20,13 +20,10 @@ class MazeEnv(object):
 
     def __init__(self, log_name='MazeEnv', maze=None):
         if maze is None:
-            self.maze = Maze.build(bounds=(10, 10), block_cnt=20)
+            self.maze = Maze.build(bounds=(50, 50))
         else:
-            self.maze = Maze(
-                start=(maze.x, maze.y),
-                bounds=(maze.max_x, maze.max_y),
-                door=maze.door,
-                blocks=maze.blocks)
+            self.maze = Maze(bounds=(maze.max_x, maze.max_y),
+                             target=maze.target)
 
         # if MazeEnv.logger is None:
         #     MazeEnv.logger = Logger("MazeEnv")
@@ -37,17 +34,13 @@ class MazeEnv(object):
     def reset(self):
         x = random.randint(0, self.maze.max_x - 1)
         y = random.randint(0, self.maze.max_y - 1)
-        # x, y = 0, 0
-        self.maze.set_start((x, y))
-        # self.maze = Maze.build(bounds=(20, 20), block_cnt=100)
+
+        self.maze = Maze.build(bounds=(self.maze.max_x, self.maze.max_y))
 
         if self.viewer is not None:
-            self.viewer.maze = self.maze
-        return self.get_state()
+            self.viewer.set_maze(self.maze)
 
-    # def clear_queue(self):
-    #     while not self.queue.empty():
-    #         self.queue.get()
+        return self.get_state()
 
     def step(self, a):
         """
@@ -55,27 +48,21 @@ class MazeEnv(object):
         a: 0=up,1=down,2=left,3=right
         """
         # s = self.get_state()
-        succ = False
 
         if a == 3:
-            succ = self.maze.move_up()
+            self.maze.move_up()
         if a == 2:
-            succ = self.maze.move_down()
+            self.maze.move_down()
         if a == 1:
-            succ = self.maze.move_left()
+            self.maze.move_left()
         if a == 0:
-            succ = self.maze.move_right()
+            self.maze.move_right()
 
-        r = 0  # 每走一步-1分，直到门，相当于策略要用最短的步数走出去
-        if not succ:  # 对撞墙等错误行为惩罚
-            r = 0
+        r = self.maze.snakes[0].delta_len() - 1
         done = False
         if self.maze.done():
             done = True
-            r = 10
-        # self.logger.debug([s, a, self.get_state(), r, done])
-        # if self.viewer is not None:
-        #     self.viewer.maze.set_start(start=(self.maze.x, self.maze.y))
+            r = -5
 
         return self.get_state(), r, done
 
@@ -85,4 +72,4 @@ class MazeEnv(object):
         self.viewer.render()
 
     def get_state(self):
-        return np.hstack([self.maze.x, self.maze.y])
+        return np.hstack([self.maze.snakes[0].x, self.maze.snakes[0].y])
