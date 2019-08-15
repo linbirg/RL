@@ -73,13 +73,6 @@ if __name__ == "__main__":
     #         shutil.rmtree(LOG_DIR)
     #     tf.summary.FileWriter(LOG_DIR, SESS.graph)
 
-    # for worker in workers:
-    #     job = lambda: worker.train()
-    #     t = threading.Thread(target=job)
-    #     t.start()
-    #     worker_threads.append(t)
-    # COORD.join(worker_threads)
-
     for i in range(len(workers) - 1):
         worker = workers[i + 1]
         job = lambda: worker.train()
