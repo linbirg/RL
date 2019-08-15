@@ -76,6 +76,7 @@ class Worker(object):
                 if done or total_step % self.UPDATE_GLOBAL_ITER == 0:  # update global and assign to local net
                     self.AI.update(done, s_, buffer_r, buffer_s, buffer_a)
                     buffer_s, buffer_a, buffer_r = [], [], []
+                    self.AI.pull_global()
 
                 if done:
                     self._record_global_reward_and_print(

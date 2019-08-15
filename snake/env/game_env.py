@@ -22,7 +22,8 @@ class SnakeGameEnv(object):
         # if maze is None:
         #     self.maze = Game(bounds=(50, 50))
         # else:
-        self.maze = Game(bounds=(maze.max_x, maze.max_y))
+        # self.maze = Game(bounds=(maze.max_x, maze.max_y))
+        self.maze = maze
 
         self.viewer = None
 
@@ -74,20 +75,20 @@ class SnakeGameEnv(object):
 class SnakeGameEnvTriAct(SnakeGameEnv):
     action_dim = 3
 
-    def __init__(self, log_name='MazeEnv', game=None):
-        super().__init__(log_name, game)
+    def __init__(self, game, log_name='MazeEnv'):
+        super().__init__(game, log_name)
 
     def step(self, a):
         """
         根据动作转换状态,返回新的状态(s), reward, done
-        a: 0=up,1=down,2=left,3=right
+        a: 0=up,1=left,2=right
         """
-        if a == 2:
-            self.maze.move_down()
-        if a == 1:
-            self.maze.move_left()
         if a == 0:
-            self.maze.move_right()
+            self.maze.forward()
+        if a == 1:
+            self.maze.left()
+        if a == 2:
+            self.maze.right()
 
         r = self.maze.snake.delta_len() * 2 - 0.1
 
@@ -97,3 +98,11 @@ class SnakeGameEnvTriAct(SnakeGameEnv):
             r = -1
 
         return self.get_state(), r, done
+
+    def reset(self):
+        self.maze = GameTriAct(bounds=(self.maze.max_x, self.maze.max_y))
+
+        if self.viewer is not None:
+            self.viewer.set_maze(self.maze)
+
+        return self.get_state()
