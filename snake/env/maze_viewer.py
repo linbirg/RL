@@ -2,7 +2,7 @@
 import pyglet
 
 # from .maze import Maze
-from env.maze import Maze
+# from env.game import Game
 
 DimGrey = (69, 69, 69)  # 灰
 LightSlateGray = (119, 136, 153)  # 	浅石板灰
@@ -12,6 +12,8 @@ GhostWhite = (248, 248, 255)  # 幽灵白
 Lavender = (230, 230, 250)  # 熏衣草花的淡紫色
 AliceBlue = (240, 248, 255)  # 爱丽丝蓝
 LightCoral = (240, 128, 128)  # 淡珊瑚色
+Lime = (0, 255, 0)  # 	酸橙色
+ForestGreen = (34, 139, 34)  # 	森林绿
 
 
 class MazeViewer(pyglet.window.Window):
@@ -21,11 +23,11 @@ class MazeViewer(pyglet.window.Window):
     # pyglet.clock.ClockDisplay()
 
     def __init__(self, maze):
-        super(MazeViewer, self).__init__(width=1000,
-                                         height=800,
-                                         resizable=False,
-                                         caption='maze',
-                                         vsync=False)
+        super().__init__(width=1000,
+                         height=800,
+                         resizable=False,
+                         caption='maze',
+                         vsync=False)
 
         self.maze = maze
 
@@ -67,7 +69,7 @@ class MazeViewer(pyglet.window.Window):
         for line in self.grids:
             line.delete()
 
-    def _add_rect(self, pos, width, height, color=Lavender):
+    def _add_rect(self, pos, width, height, color=DimGrey):
         # 添加蓝点
         rect = self.batch.add(
             4,
@@ -89,11 +91,11 @@ class MazeViewer(pyglet.window.Window):
 
         return rect
 
-    def _add_v_line(self, pos, length, width=1, color=AliceBlue):
+    def _add_v_line(self, pos, length, width=1, color=DimGrey):
         vline = self._add_rect(pos, width, length, color=color)
         return vline
 
-    def _add_h_line(self, pos, length, width=1, color=AliceBlue):
+    def _add_h_line(self, pos, length, width=1, color=DimGrey):
         hline = self._add_rect(pos, length, width, color=color)
         return hline
 
@@ -124,14 +126,14 @@ class MazeViewer(pyglet.window.Window):
         return target
 
     def plot_snakes(self):
-        if self.maze.snakes is None:
+        if self.maze.snake is None:
             return None
 
         bodys = []
         heads = []
-        for snake in self.maze.snakes:
-            bodys = bodys + snake.body[0:-1]
-            heads.append(snake.body[-1])
+        snake = self.maze.snake
+        bodys = bodys + snake.body[0:-1]
+        heads.append(snake.body[-1])
 
         x, y = self._get_origin()
         b_w, b_h = self._calc_block_size()
@@ -141,14 +143,14 @@ class MazeViewer(pyglet.window.Window):
                 (x + block[0] * b_w, y + block[1] * b_h),
                 b_w,
                 b_h,
-                color=RoyalBlue)
+                color=ForestGreen)
             blocks.append(blck_rect)
 
         for head in heads:
             blck_rect = self._add_rect((x + head[0] * b_w, y + head[1] * b_h),
                                        b_w,
                                        b_h,
-                                       color=Crimson)
+                                       color=Lime)
             blocks.append(blck_rect)
 
         return blocks
@@ -172,21 +174,20 @@ class MazeViewer(pyglet.window.Window):
         return (block_w, block_h)
 
 
-def viewer_run():
-    viewer = MazeViewer(Maze())
-    while True:
-        viewer.render()
+# def viewer_run():
+#     viewer = MazeViewer(Maze())
+#     while True:
+#         viewer.render()
 
-
-if __name__ == '__main__':
-    import time
-    import random
-    import logging
-    maze = Maze.build((10, 10))
-    viewer = MazeViewer(maze)
-    while True:
-        dx, dy = random.randint(-1, 1), random.randint(-1, 1)
-        print(dx, dy)
-        maze.move(dx, dy)
-        viewer.render()
-        time.sleep(0.1)
+# if __name__ == '__main__':
+#     import time
+#     import random
+#     import logging
+#     maze = Maze.build((10, 10))
+#     viewer = MazeViewer(maze)
+#     while True:
+#         dx, dy = random.randint(-1, 1), random.randint(-1, 1)
+#         print(dx, dy)
+#         maze.move(dx, dy)
+#         viewer.render()
+#         time.sleep(0.1)
