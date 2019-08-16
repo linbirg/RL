@@ -79,9 +79,9 @@ class A3CNet(object):
         drop_rate = 0.16
         w_init = tf.random_normal_initializer(0., .1)
         with tf.variable_scope('actor'):
-            _, l_a2_dp = self._add_layer('la2', 400, self.s, drop_rate / 4,
-                                         w_init)
-            _, l_a3_dp = self._add_layer('la3', 200, l_a2_dp, drop_rate / 4,
+            # _, l_a2_dp = self._add_layer('la2', 400, self.s, drop_rate / 4,
+            #                              w_init)
+            _, l_a3_dp = self._add_layer('la3', 200, self.s, drop_rate / 4,
                                          w_init)
             _, l_a4_dp = self._add_layer('la4', 100, l_a3_dp, drop_rate / 4,
                                          w_init)
@@ -96,9 +96,9 @@ class A3CNet(object):
                                      kernel_initializer=w_init,
                                      name='ap')
         with tf.variable_scope('critic'):
-            _, l_c2_dp = self._add_layer('lc2', 400, self.s, drop_rate / 4,
-                                         w_init)
-            _, l_c3_dp = self._add_layer('lc3', 200, l_c2_dp, drop_rate / 4,
+            # _, l_c2_dp = self._add_layer('lc2', 400, self.s, drop_rate / 4,
+            #                              w_init)
+            _, l_c3_dp = self._add_layer('lc3', 200, self.s, drop_rate / 4,
                                          w_init)
             _, l_c4_dp = self._add_layer('lc4', 100, l_c3_dp, drop_rate / 4,
                                          w_init)
