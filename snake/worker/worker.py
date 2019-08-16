@@ -82,15 +82,15 @@ class Worker(object):
                     self._record_global_reward_and_print(
                         self.GLOBAL_RUNNING_R, ep_r, self.global_EP,
                         total_step)
-                    self.global_EP += 1
                     self.reset()
 
                 total_step += 1
                 self.render()
-                time.sleep(0.01)
+                time.sleep(0.05)
                 logger.debug([
-                    " s_ ", s_, " a ", a, " p ", p, " r ", r, " total_step ",
-                    total_step
+                    " s_ ", s_, " v ",
+                    self.AI.get_v(s_), " a ", a, " p ", p, " r ", r,
+                    " total_step ", total_step
                 ])
 
             except Exception as e:
@@ -101,3 +101,14 @@ class Worker(object):
         ) and self.global_EP < self.MAX_GLOBAL_EP:
             self.reset()
             self.do_game()
+            self.global_EP += 1
+            self.save()
+
+    def save(self, path='./board-log/model.ckpt'):
+        if self.name == 'W_0':
+            saver = tf.train.Saver()
+            saver.save(self.AI.sess, path)
+
+    def load(self, path='./board-log/model.ckpt'):
+        saver = tf.train.Saver()
+        saver.restore(self.AI.sess, path)

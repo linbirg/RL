@@ -1,3 +1,9 @@
 maze/log/mainLogger_logger_MainThread_20190809.log
 morvan/Reinforcement-learning-with-tensorflow
 snake/log
+snake/ai/__pycache__/A3C.cpython-37.pyc
+snake/ai/__pycache__/A3C.cpython-37.pyc
+snake/env/__pycache__/game_env.cpython-37.pyc
+snake/env/__pycache__/game.cpython-37.pyc
+snake/env/__pycache__/maze_viewer.cpython-37.pyc
+snake/worker/__pycache__/worker.cpython-37.pyc

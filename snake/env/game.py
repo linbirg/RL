@@ -154,6 +154,9 @@ class Game(object):
             self.random_target()
             return True
 
+        if self.snake.is_back(self.snake.x + dx, self.snake.y + dy):
+            return False
+
         if self.is_safe_block(self.snake.x + dx, self.snake.y + dy):
             self.snake.move(dx, dy)
             return True

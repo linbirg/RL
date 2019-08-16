@@ -58,7 +58,7 @@ class SnakeGameEnv(object):
         done = False
         if self.maze.done():
             done = True
-            r = -1
+            r = -2
 
         return self.get_state(), r, done
 

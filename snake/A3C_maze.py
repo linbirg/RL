@@ -30,8 +30,8 @@ from worker.worker import Worker
 
 import logger
 
-# OUTPUT_GRAPH = True
-# LOG_DIR = './board-log'
+OUTPUT_GRAPH = True
+MODEL_DIR = './board/model.ckpt'
 N_WORKERS = multiprocessing.cpu_count()
 # MAX_TOTAL_STEP = 20000
 # MAX_GLOBAL_EP = 50000
@@ -40,30 +40,32 @@ N_WORKERS = multiprocessing.cpu_count()
 
 logger = logger.Logger(show_in_console=False)
 
+
+def exist_cache():
+    return OUTPUT_GRAPH and os.path.exists(MODEL_DIR)
+
+
 if __name__ == "__main__":
     GLOBAL_NET_SCOPE = 'Global_Net'
-    N_S = SnakeGameEnvTriAct.state_space_dim
-    N_A = SnakeGameEnvTriAct.action_dim
+    N_S = SnakeGameEnv.state_space_dim
+    N_A = SnakeGameEnv.action_dim
 
     SESS = tf.Session()
     COORD = tf.train.Coordinator()
 
     with tf.device("/cpu:0"):
-        # global_maze = Game(bounds=(12, 12))
-        global_maze = GameTriAct(bounds=(12, 12))
+        global_maze = Game(bounds=(8, 8))
 
-        # SESS, scope, N_S, N_A, globalAC=None
         GLOBAL_AC = A3CNet(SESS, GLOBAL_NET_SCOPE, N_S,
                            N_A)  # we only need its params
 
         workers = []
-        # COORD, name, net, game=None
-        # Create worker
+
         for i in range(N_WORKERS):
             i_name = 'W_%i' % i  # worker name
             ac = A3CNet(SESS, i_name, N_S, N_A, GLOBAL_AC)
-            workers.append(
-                Worker(COORD, i_name, ac, SnakeGameEnvTriAct(global_maze)))
+            workers.append(Worker(COORD, i_name, ac,
+                                  SnakeGameEnv(global_maze)))
 
     SESS.run(tf.global_variables_initializer())
     worker_threads = []
@@ -81,7 +83,10 @@ if __name__ == "__main__":
         worker_threads.append(t)
     # COORD.join(worker_threads)
     worker = workers[0]
-    worker.train()
+    if exist_cache():
+        worker.load()
+    with SESS:
+        worker.train()
 
     # plt.plot(np.arange(len(Worker.GLOBAL_RUNNING_R)), Worker.GLOBAL_RUNNING_R)
     # plt.xlabel('step')

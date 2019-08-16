@@ -76,100 +76,37 @@ class A3CNet(object):
                         zip(self.c_grads, globalAC.c_params))
 
     def _build_net(self, scope):
-        drop_rate = 0.25
+        drop_rate = 0.16
         w_init = tf.random_normal_initializer(0., .1)
         with tf.variable_scope('actor'):
-            # l_a0 = tf.layers.dense(self.s,
-            #                        1600,
-            #                        tf.nn.relu6,
-            #                        kernel_initializer=w_init,
-            #                        name='la0')
-            # l_a0_dp = tf.layers.dropout(l_a0, rate=drop_rate)
-            # l_a = tf.layers.dense(l_a0_dp,
-            #                       800,
-            #                       tf.nn.relu6,
-            #                       kernel_initializer=w_init,
-            #                       name='la')
-            # l_a_dp = tf.layers.dropout(l_a, rate=drop_rate)
-            # l_a2 = tf.layers.dense(l_a_dp,
-            #                        400,
-            #                        tf.nn.relu6,
-            #                        kernel_initializer=w_init,
-            #                        name='la2')
-            # l_a2_dp = tf.layers.dropout(l_a2)
-            l_a3 = tf.layers.dense(self.s,
-                                   200,
-                                   tf.nn.relu6,
-                                   kernel_initializer=w_init,
-                                   name='la3')
-            l_a3_dp = tf.layers.dropout(l_a3, rate=drop_rate)
-            l_a4 = tf.layers.dense(l_a3_dp,
-                                   100,
-                                   tf.nn.relu6,
-                                   kernel_initializer=w_init,
-                                   name='la4')
-            l_a4_dp = tf.layers.dropout(l_a4, rate=drop_rate / 2)
-            l_a5 = tf.layers.dense(l_a4_dp,
-                                   50,
-                                   tf.nn.relu6,
-                                   kernel_initializer=w_init,
-                                   name='la5')
-            l_a5_dp = tf.layers.dropout(l_a5, rate=drop_rate / 4)
-            l_a6 = tf.layers.dense(l_a5_dp,
-                                   20,
-                                   tf.nn.relu6,
-                                   kernel_initializer=w_init,
-                                   name='la6')
-            l_a6_dp = tf.layers.dropout(l_a6, rate=drop_rate / 8)
+            _, l_a2_dp = self._add_layer('la2', 400, self.s, drop_rate / 4,
+                                         w_init)
+            _, l_a3_dp = self._add_layer('la3', 200, l_a2_dp, drop_rate / 4,
+                                         w_init)
+            _, l_a4_dp = self._add_layer('la4', 100, l_a3_dp, drop_rate / 4,
+                                         w_init)
+            _, l_a5_dp = self._add_layer('la5', 50, l_a4_dp, drop_rate / 8,
+                                         w_init)
+            _, l_a6_dp = self._add_layer('la6', 20, l_a4_dp, drop_rate / 16,
+                                         w_init)
+
             a_prob = tf.layers.dense(l_a6_dp,
                                      self.N_A,
                                      tf.nn.softmax,
                                      kernel_initializer=w_init,
                                      name='ap')
         with tf.variable_scope('critic'):
-            # l_c0 = tf.layers.dense(self.s,
-            #                        1600,
-            #                        tf.nn.relu6,
-            #                        kernel_initializer=w_init,
-            #                        name='lc0')
-            # l_c0_dp = tf.layers.dropout(l_c0, rate=drop_rate)
-            # l_c = tf.layers.dense(l_c0_dp,
-            #                       800,
-            #                       tf.nn.relu6,
-            #                       kernel_initializer=w_init,
-            #                       name='lc')
-            # l_c_dp = tf.layers.dropout(l_c, rate=drop_rate)
-            # # 多加一层
-            # l_c2 = tf.layers.dense(l_c_dp,
-            #                        400,
-            #                        tf.nn.relu6,
-            #                        kernel_initializer=w_init,
-            #                        name='lc2')
-            # l_c2_dp = tf.layers.dropout(l_c2)
-            l_c3 = tf.layers.dense(self.s,
-                                   200,
-                                   tf.nn.relu6,
-                                   kernel_initializer=w_init,
-                                   name='lc3')
-            l_c3_dp = tf.layers.dropout(l_c3, rate=drop_rate)
-            l_c4 = tf.layers.dense(l_c3_dp,
-                                   100,
-                                   tf.nn.relu6,
-                                   kernel_initializer=w_init,
-                                   name='lc4')
-            l_c4_dp = tf.layers.dropout(l_c4, rate=drop_rate / 2)
-            l_c5 = tf.layers.dense(l_c4_dp,
-                                   50,
-                                   tf.nn.relu6,
-                                   kernel_initializer=w_init,
-                                   name='lc5')
-            l_c5_dp = tf.layers.dropout(l_c5, rate=drop_rate / 4)
-            l_c6 = tf.layers.dense(l_c5_dp,
-                                   20,
-                                   tf.nn.relu6,
-                                   kernel_initializer=w_init,
-                                   name='lc6')
-            l_c6_dp = tf.layers.dropout(l_c6, rate=drop_rate / 8)
+            _, l_c2_dp = self._add_layer('lc2', 400, self.s, drop_rate / 4,
+                                         w_init)
+            _, l_c3_dp = self._add_layer('lc3', 200, l_c2_dp, drop_rate / 4,
+                                         w_init)
+            _, l_c4_dp = self._add_layer('lc4', 100, l_c3_dp, drop_rate / 4,
+                                         w_init)
+            _, l_c5_dp = self._add_layer('lc5', 50, l_c4_dp, drop_rate / 8,
+                                         w_init)
+            _, l_c6_dp = self._add_layer('lc6', 20, l_c5_dp, drop_rate / 16,
+                                         w_init)
+
             v = tf.layers.dense(l_c6_dp,
                                 1,
                                 kernel_initializer=w_init,
@@ -179,6 +116,16 @@ class A3CNet(object):
         c_params = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES,
                                      scope=scope + '/critic')
         return a_prob, v, a_params, c_params
+
+    def _add_layer(self, name, size, last, drop_rate, w_i, method=tf.nn.relu6):
+        ly = tf.layers.dense(last,
+                             size,
+                             method,
+                             kernel_initializer=w_i,
+                             name=name)
+        ly_dp = tf.layers.dropout(ly, rate=drop_rate)
+
+        return ly, ly_dp
 
     def update_global(self, feed_dict):  # run by a local
         self.SESS.run([self.update_a_op, self.update_c_op],

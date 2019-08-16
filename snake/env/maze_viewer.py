@@ -23,8 +23,8 @@ class MazeViewer(pyglet.window.Window):
     # pyglet.clock.ClockDisplay()
 
     def __init__(self, maze):
-        super().__init__(width=1000,
-                         height=800,
+        super().__init__(width=600,
+                         height=400,
                          resizable=False,
                          caption='maze',
                          vsync=False)
