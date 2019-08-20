@@ -8,7 +8,7 @@ import numpy as np
 class A3CNet(object):
     GLOBAL_NET_SCOPE = 'Global_Net'
     ENTROPY_BETA = 0.1
-    LR_A = 0.005  # learning rate for actor
+    LR_A = 0.01  # learning rate for actor
     LR_C = 0.005  # learning rate for critic
     GAMMA = 0.9
 

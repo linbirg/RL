@@ -53,7 +53,7 @@ class SnakeGameEnv(object):
         if a == 0:
             self.maze.move_right()
 
-        r = self.maze.snake.delta_len() * 2 - 0.1
+        r = self.maze.snake.delta_len() * 1.5 - 0.3
 
         done = False
         if self.maze.done():

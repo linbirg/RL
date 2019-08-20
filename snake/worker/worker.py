@@ -27,7 +27,7 @@ class Worker(object):
     GAMMA = 0.9
     MAX_GLOBAL_EP = 50000
     MAX_TOTAL_STEP = 20000
-    UPDATE_GLOBAL_ITER = 200
+    UPDATE_GLOBAL_ITER = 100
 
     GLOBAL_RUNNING_R = []
     global_EP = 0
@@ -104,11 +104,13 @@ class Worker(object):
             self.global_EP += 1
             self.save()
 
-    def save(self, path='./board-log/model.ckpt'):
+    def save(self, path='./board/model.ckpt'):
         if self.name == 'W_0':
+            print('save graph')
             saver = tf.train.Saver()
-            saver.save(self.AI.sess, path)
+            saver.save(self.AI.SESS, path)
 
-    def load(self, path='./board-log/model.ckpt'):
+    def load(self, path='./board/model.ckpt'):
         saver = tf.train.Saver()
-        saver.restore(self.AI.sess, path)
+        print('load graph')
+        saver.restore(self.AI.SESS, path)
