@@ -10,3 +10,5 @@ snake/worker/__pycache__/worker.cpython-37.pyc
 *.pyc
 snake/log/mainLogger_logger_MainThread_20190815.log
 morvan/Reinforcement-learning-with-tensorflow
+morvan/learn-pytorch/2Classfy/data/cifar-10-python.tar.gz
+morvan/learn-pytorch/2Classfy/data
