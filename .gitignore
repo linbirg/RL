@@ -7,3 +7,4 @@ snake/env/__pycache__/game_env.cpython-37.pyc
 snake/env/__pycache__/game.cpython-37.pyc
 snake/env/__pycache__/maze_viewer.cpython-37.pyc
 snake/worker/__pycache__/worker.cpython-37.pyc
+*.pyc

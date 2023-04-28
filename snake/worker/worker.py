@@ -25,8 +25,8 @@ logger = logger.Logger(show_in_console=False)
 
 class Worker(object):
     GAMMA = 0.9
-    MAX_GLOBAL_EP = 50000
-    MAX_TOTAL_STEP = 20000
+    MAX_GLOBAL_EP = 500000
+    MAX_TOTAL_STEP = 2000
     UPDATE_GLOBAL_ITER = 100
 
     GLOBAL_RUNNING_R = []

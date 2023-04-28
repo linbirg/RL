@@ -3,6 +3,7 @@
 """
 import random
 import numpy as np
+import math
 # from logger import Logger
 
 from env.game import GameTriAct, Game
@@ -19,22 +20,18 @@ class SnakeGameEnv(object):
     state_space_dim = 18
 
     def __init__(self, maze, log_name='MazeEnv'):
-        # if maze is None:
-        #     self.maze = Game(bounds=(50, 50))
-        # else:
-        # self.maze = Game(bounds=(maze.max_x, maze.max_y))
         self.maze = maze
 
         self.viewer = None
+        self.womiga = self.calc_distance()
 
     def reset(self):
-        # x = random.randint(0, self.maze.max_x - 1)
-        # y = random.randint(0, self.maze.max_y - 1)
-
         self.maze = Game(bounds=(self.maze.max_x, self.maze.max_y))
 
         if self.viewer is not None:
             self.viewer.set_maze(self.maze)
+
+        self.womiga = self.calc_distance()
 
         return self.get_state()
 
@@ -53,12 +50,12 @@ class SnakeGameEnv(object):
         if a == 0:
             self.maze.move_right()
 
-        r = self.maze.snake.delta_len() * 1.5 - 0.3
+        r = self.maze.snake.length() + 0.9 * self.get_womiga_reword() - 0.5
 
         done = False
         if self.maze.done():
             done = True
-            r = -2
+            r = -1.5
 
         return self.get_state(), r, done
 
@@ -70,6 +67,18 @@ class SnakeGameEnv(object):
     def get_state(self):
         return np.hstack(
             [self.maze.target[0], self.maze.target[1], *self.maze.snake.bodys])
+
+    def calc_distance(self):
+        x, y = self.maze.target
+        hx, hy = self.maze.snake.x, self.maze.snake.y
+
+        return math.sqrt((x - hx) * (x - hx) + (y - hy) * (y - hy))
+
+    def get_womiga_reword(self):
+        womiga = self.calc_distance()
+        delta_w = self.womiga - womiga
+        self.womiga = womiga
+        return delta_w
 
 
 class SnakeGameEnvTriAct(SnakeGameEnv):
@@ -90,12 +99,12 @@ class SnakeGameEnvTriAct(SnakeGameEnv):
         if a == 2:
             self.maze.right()
 
-        r = self.maze.snake.delta_len() * 2 - 0.1
+        r = self.maze.snake.length() + 0.5 * self.get_womiga_reword() - 0.9
 
         done = False
         if self.maze.done():
             done = True
-            r = -1
+            r = -1.5
 
         return self.get_state(), r, done
 
@@ -104,5 +113,7 @@ class SnakeGameEnvTriAct(SnakeGameEnv):
 
         if self.viewer is not None:
             self.viewer.set_maze(self.maze)
+
+        self.womiga = self.calc_distance()
 
         return self.get_state()

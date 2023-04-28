@@ -47,14 +47,14 @@ def exist_cache():
 
 if __name__ == "__main__":
     GLOBAL_NET_SCOPE = 'Global_Net'
-    N_S = SnakeGameEnv.state_space_dim
-    N_A = SnakeGameEnv.action_dim
+    N_S = SnakeGameEnvTriAct.state_space_dim
+    N_A = SnakeGameEnvTriAct.action_dim
 
     SESS = tf.Session()
     COORD = tf.train.Coordinator()
 
     with tf.device("/cpu:0"):
-        global_maze = Game(bounds=(10, 10))
+        global_maze = Game(bounds=(6, 6))
 
         GLOBAL_AC = A3CNet(SESS, GLOBAL_NET_SCOPE, N_S,
                            N_A)  # we only need its params
@@ -64,8 +64,8 @@ if __name__ == "__main__":
         for i in range(N_WORKERS):
             i_name = 'W_%i' % i  # worker name
             ac = A3CNet(SESS, i_name, N_S, N_A, GLOBAL_AC)
-            workers.append(Worker(COORD, i_name, ac,
-                                  SnakeGameEnv(global_maze)))
+            workers.append(
+                Worker(COORD, i_name, ac, SnakeGameEnvTriAct(global_maze)))
 
     SESS.run(tf.global_variables_initializer())
     worker_threads = []
