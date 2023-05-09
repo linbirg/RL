@@ -1,4 +1,5 @@
 '''use torch to impl autoencoder
+   优化了autoencoder，生成数字相对比较准确并且还原度较高，主要参考了hilton的思路，向扩展784到1024，再递减，decoder相反，最后有1024缩减到784
    下一步可以研究DALL-E https://zhuanlan.zhihu.com/p/625975291
 '''
 
