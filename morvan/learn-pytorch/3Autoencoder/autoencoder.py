@@ -1,4 +1,6 @@
-'''use torch to impl autoencoder'''
+'''use torch to impl autoencoder
+   下一步可以研究DALL-E https://zhuanlan.zhihu.com/p/625975291
+'''
 
 import os
 
@@ -39,18 +41,37 @@ class AutoEncoder(nn.Module):
     def __init__(self):
         super().__init__()
 
-        self.encoder = nn.Sequential(nn.Linear(28 * 28, 512), nn.Tanh(),
-                                     nn.Linear(512, 256), nn.Tanh(),
-                                     nn.Linear(256, 128), nn.Tanh(),
-                                     nn.Linear(128, 64), nn.Tanh(),
-                                     nn.Linear(64, 12), nn.Tanh(),
-                                     nn.Linear(12, 3))
-        self.decoder = nn.Sequential(nn.Linear(3, 12), nn.Tanh(),
-                                     nn.Linear(12, 64), nn.Tanh(),
-                                     nn.Linear(64, 128), nn.Tanh(),
-                                     nn.Linear(128, 256), nn.Tanh(),
-                                     nn.Linear(256, 512), nn.Tanh(),
-                                     nn.Linear(512, 28 * 28), nn.Sigmoid())
+
+
+        # self.encoder = nn.Sequential(nn.Linear(28 * 28, 1024), nn.LeakyReLU(),nn.LayerNorm(1024)
+        #                              nn.Linear(1024, 512), nn.LeakyReLU(),
+        #                              nn.LayerNorm(512), nn.Linear(512, 256),
+        #                              nn.LeakyReLU(), nn.LayerNorm(256),
+        #                              nn.Linear(256, 128), nn.LeakyReLU(),
+        #                              nn.LayerNorm(128), nn.Linear(128, 64),
+        #                              nn.LeakyReLU(), nn.LayerNorm(64),
+        #                              nn.Linear(64, 12))  # nn.LeakyReLU(),
+        #  nn.Linear(12, 3))
+        self.encoder = nn.Sequential(nn.Linear(28 * 28, 1024), nn.LeakyReLU(),
+                                     nn.LayerNorm(1024), nn.Linear(1024, 512),
+                                     nn.LeakyReLU(), nn.LayerNorm(512),
+                                     nn.Linear(512, 256), nn.LeakyReLU(),
+                                     nn.LayerNorm(256), nn.Linear(256, 12))
+
+        self.decoder = nn.Sequential(nn.Linear(12, 256), nn.LeakyReLU(),
+                                     nn.LayerNorm(256), nn.Linear(256, 512),
+                                     nn.LeakyReLU(), nn.LayerNorm(512),
+                                     nn.Linear(512, 1024), nn.LeakyReLU(),
+                                     nn.LayerNorm(1024),
+                                     nn.Linear(1024, 28 * 28), nn.Sigmoid())
+
+        # self.decoder = nn.Sequential(nn.Linear(12, 64), nn.LeakyReLU(),
+        #                              nn.LayerNorm(64), nn.Linear(64, 128),
+        #                              nn.LeakyReLU(), nn.LayerNorm(128),
+        #                              nn.Linear(128, 256), nn.LeakyReLU(),
+        #                              nn.LayerNorm(256), nn.Linear(256, 512),
+        #                              nn.LeakyReLU(), nn.LayerNorm(512),
+        #                              nn.Linear(512, 28 * 28), nn.Sigmoid())
 
     def forward(self, x):
         encoded = self.encoder(x)  # [B, 128] -> [B, 64] -> [B, 12]->[B, 3]
@@ -73,7 +94,8 @@ class Trainer():
 
         self.optimizer = torch.optim.Adam(self.autoencoder.parameters(),
                                           lr=self.LR)
-        self.loss_func = nn.MSELoss()
+        # self.loss_func = nn.MSELoss()
+        self.loss_func = nn.BCELoss()
         self.a = None
 
     def train(self, trainloader, show=True, iscontinue=True):
